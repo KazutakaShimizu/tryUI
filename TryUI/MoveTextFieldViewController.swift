@@ -13,7 +13,18 @@ class MoveTextFieldViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet var textField: UITextField!
     override func viewDidLoad() {
         super.viewDidLoad()
+//        createSampleView()
         textField.delegate = self
+    }
+    
+//    minyやminxの座標系を調べる
+//    これは位置とサイズを足して、そのviewの最小端をさす
+    private func createSampleView(){
+        var sampleView = UIView(frame: CGRect(x: 100, y: 0, width: 500, height: 500))
+        print(sampleView.frame.maxX)
+        print(sampleView.frame.minX)
+        sampleView.backgroundColor = UIColor.red
+        view.addSubview(sampleView)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -39,15 +50,19 @@ class MoveTextFieldViewController: UIViewController, UITextFieldDelegate {
         if let userInfo = notification.userInfo {
             
             
-//            keyboardframeにはキーボードの位置やサイズの情報が、animationDurationにはアニメーションのジカンが入っている
+//            keyboardframeにはキーボードの位置やサイズの情報が、animationDurationにはアニメーションの時間が入っている
             if let keyboardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue, let animationDuration = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as AnyObject).doubleValue {
-                
+//                スクロールビューの位置をリセット
                 restoreScrollViewSize()
-                
+//                keyboardFrameはview全体での座標なので、それをスクロールビュー用に変換する
+//                scrollViewの大きさが画面全体なら、ここはいらない
                 let convertedKeyboardFrame = scrollView.convert(keyboardFrame, from: nil)
-                print(convertedKeyboardFrame)
+                
+//                textFieldの最下端の位置 - キーボードの最上端の位置
+//                つまりキーボードがtextfieldにかかっているかどうかのチェック
                 let offsetY: CGFloat = textField.frame.maxY - convertedKeyboardFrame.minY
                 if offsetY < 0 { return }
+//                スクロールビューをスクロールさせる
                 updateScrollViewSize(moveSize: offsetY, duration: animationDuration)
             }
         }
